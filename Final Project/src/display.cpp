@@ -198,6 +198,7 @@ void ATPG::display_fault(fptr f) {
       fprintf(stdout, "s-a-1\n");
       break;
   }
+  /*
   fprintf(stdout, "detection flag =");
   switch (f->detect) {
     case FALSE:
@@ -210,5 +211,6 @@ void ATPG::display_fault(fptr f) {
       fprintf(stdout, " internal error\n");
       break;
   }
+  */
   fprintf(stdout, "\n");
 }/* end of display_fault */

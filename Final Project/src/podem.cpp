@@ -16,6 +16,7 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
   forward_list<wptr> decision_tree; // design_tree (a LIFO stack)
   wptr wfault;
   int attempt_num = 0;  // counts the number of pattern generated so far for the given fault
+  display_fault(fault);
 
   /* initialize all circuit wires to unknown */
   ncktwire = sort_wlist.size();
@@ -36,7 +37,13 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
       sim();  // Fig 7.3
       wfault = fault_evaluate(fault);
       if (wfault != nullptr) forward_imply(wfault);// propagate fault effect
-      if (check_test()) find_test = true; // if fault effect reaches PO, done. Fig 7.10
+      if (check_test()) {
+        find_test = true; // if fault effect reaches PO, done. Fig 7.10
+        if (total_attempt_num > 1) {
+          display_io();
+        }
+        attempt_num++; // increase pattern count for this fault
+      }
       break;
     case CONFLICT:
       no_test = true; // cannot achieve initial objective, no test
@@ -83,17 +90,20 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
 
 /* this again loop is to generate multiple patterns for a single fault 
  * this part is NOT in the original PODEM paper  */
+
+
     again:
     if (wpi) {
+      // cout << wpi->name << endl;
       sim();
       if (wfault = fault_evaluate(fault)) forward_imply(wfault);
+      // for (i = 0; i < ncktwire; i++) {
+      //   cout << sort_wlist[i]->name << " : " << sort_wlist[i]->value << endl;
+      // }
       if (check_test()) {
         find_test = true;
         /* if multiple patterns per fault, print out every test cube */
         if (total_attempt_num > 1) {
-          if (attempt_num == 0) {
-            display_fault(fault);
-          }
           display_io();
         }
         attempt_num++; // increase pattern count for this fault
@@ -134,8 +144,12 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
 
   current_backtracks = no_of_backtracks;
   unmark_propagate_tree(fault->node);
-
-  if (find_test) {
+  
+  if (no_test) {
+    fprintf(stdout,"redundant fault...\n\n");
+    return (FALSE);
+  } 
+  else if (find_test) {
     /* normally, we want one pattern per fault */
     if (total_attempt_num == 1) {
 
@@ -158,11 +172,8 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
       display_io();
     } else fprintf(stdout, "\n");  // do not random fill when multiple patterns per fault
     return (TRUE);
-  } else if (no_test) {
-    /*fprintf(stdout,"redundant fault...\n");*/
-    return (FALSE);
   } else {
-    /*fprintf(stdout,"test aborted due to backtrack limit...\n");*/
+    fprintf(stdout,"test aborted due to backtrack limit...\n\n");
     return (MAYBE);
   }
 }/* end of podem */
@@ -631,6 +642,7 @@ int ATPG::backward_imply(const wptr current_wire, const int &desired_logic_value
     }
     current_wire->value = desired_logic_value; // assign PI to the objective value
     current_wire->set_changed();
+    // cout << current_wire->name << endl;
     // CHANGED means the logic value on this wire has recently been changed
     return (TRUE);
   } else { // if not PI

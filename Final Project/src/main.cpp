@@ -39,6 +39,7 @@ int main(int argc, char *argv[]) {
       // for N-detect fault simulation
     else if (strcmp(argv[i], "-ndet") == 0) {
       atpg.detected_num = atoi(argv[i + 1]);
+      atpg.set_total_attempt_num(atoi(argv[i + 1]));
       i += 2;
     } else if (argv[i][0] == '-') {
       j = 1;

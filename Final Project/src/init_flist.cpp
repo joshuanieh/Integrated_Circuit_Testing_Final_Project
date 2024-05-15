@@ -173,6 +173,7 @@ void ATPG::generate_fault_list() {
   for (fptr f: flist_undetect) {
     f->fault_no = fault_num;
     fault_num++;
+    // display_fault(f);
     //cout << f->fault_no << f->node->name << ":" << (f->io?"O":"I") << (f->io?9:(f->index)) << "SA" << f->fault_type << endl;
   }
 
