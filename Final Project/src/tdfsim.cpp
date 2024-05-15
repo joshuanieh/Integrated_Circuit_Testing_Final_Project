@@ -277,15 +277,21 @@ void ATPG::tdfault_sim_a_vector2(const string &vec, int &num_of_current_detect) 
   flist_undetect.remove_if(
       [&](const fptr fptr_ele) {
         if (fptr_ele->detect == TRUE) {
-          string IO;
+          // string IO;
           /*if(fptr_ele->io == GO) IO = "GO";
           else IO = "GI";
           if(fptr_ele->fault_type == STR)
             cout << "fault "<<  fptr_ele->fault_no<< ": STR at wire-"<< sort_wlist[fptr_ele->to_swlist]->name<< ", "<< IO<< " of "<< fptr_ele->node->name <<endl;
           else
             cout << "fault "<<  fptr_ele->fault_no<< ": STF at wire- "<< sort_wlist[fptr_ele->to_swlist]->name<< ", "<< IO<< " of "<< fptr_ele->node->name <<endl;*/
-          num_of_current_detect += fptr_ele->eqv_fault_num;
-          return true;
+          fptr_ele->detected_time += 1;
+          if (fptr_ele->detected_time == detected_num) {
+            num_of_current_detect += fptr_ele->eqv_fault_num;
+            return true;
+          }
+          else {
+            return false;
+          }
         } else {
           return false;
         }
