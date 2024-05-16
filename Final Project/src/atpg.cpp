@@ -131,6 +131,11 @@ void ATPG::test() {
 
 /* constructor of ATPG */
 ATPG::ATPG() {
+    this->wpit = nullptr;
+    this->wpit_1 = nullptr;
+    this->fake_fault_s = move(fptr_s(new(nothrow) FAULT));
+//   if (fake_fault_s == nullptr) error("No more room!");
+    this->fake_fault = fake_fault_s.get();
     /* orginally assigned in tpgmain.c */
     this->backtrack_limit = 50;     /* default value */
     this->total_attempt_num = 1;    /* default value */

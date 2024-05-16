@@ -136,6 +136,11 @@ class ATPG {
   bool tdfsim_only;                    /* flag to indicate tdfault simulation only */
   bool tdfatpg_only;
 
+  wptr wpit; // points to the PI currently being assigned
+  wptr wpit_1;
+  fptr_s fake_fault_s; //Pattern 1
+  fptr fake_fault; //Pattern 1
+
   /* used in input.cpp to parse circuit*/
   int debug;                           /* != 0 if debugging;  this is a switch of debug mode */
   string filename;                     /* current input file */
@@ -237,7 +242,7 @@ class ATPG {
     int wire_value2;           /* (32 bits) represents values of this wire 
                                   in the presence of 16 faults. (for pfedfs) */
     int wlist_index;           /* index into the sorted_wlist array */
-
+    bool all_assigned;
     //  the following functions control/observe the state of wire
     //  HCY 2020/2/6
     void set_(int type) { flag |= type; }
