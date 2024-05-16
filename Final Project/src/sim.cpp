@@ -126,6 +126,7 @@ void ATPG::evaluate(nptr n) {
 
 int ATPG::ctoi(const char &c) {
   if (c == '2') return (2);
+  if (c == 'x') return (2);
   if (c == '1') return (1);
   if (c == '0') return (0);
 }

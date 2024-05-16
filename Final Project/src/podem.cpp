@@ -66,7 +66,7 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
       /* insert a new PI into decision_tree */
       decision_tree.push_front(wpi);
     } else { // no test possible using this assignment, backtrack.
-
+backtrack:
       while (!decision_tree.empty() && (wpi == nullptr)) {
         /* if both 01 already tried, backtrack. Fig.7.7 */
         if (decision_tree.front()->is_all_assigned()) {
@@ -92,7 +92,7 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
  * this part is NOT in the original PODEM paper  */
 
 
-    again:
+    // again:
     if (wpi) {
       // cout << wpi->name << endl;
       sim();
@@ -112,25 +112,25 @@ int ATPG::podem(const fptr fault, int &current_backtracks) {
          * this is not in the original PODEM paper*/
         if (total_attempt_num > attempt_num) {
           wpi = nullptr;
-          while (!decision_tree.empty() && (wpi == nullptr)) {
-            /* backtrack */
-            if (decision_tree.front()->is_all_assigned()) {
-              decision_tree.front()->remove_all_assigned();
-              decision_tree.front()->value = U;
-              decision_tree.front()->set_changed();
-              decision_tree.pop_front();
-            }
-              /* flip last decision */
-            else {
-              decision_tree.front()->value = decision_tree.front()->value ^ 1;
-              decision_tree.front()->set_changed();
-              decision_tree.front()->set_all_assigned();
-              no_of_backtracks++;
-              wpi = decision_tree.front();
-            }
-          }
-          if (!wpi) no_test = true;
-          goto again;  // if we want multiple patterns per fault
+          // while (!decision_tree.empty() && (wpi == nullptr)) {
+          //   /* backtrack */
+          //   if (decision_tree.front()->is_all_assigned()) {
+          //     decision_tree.front()->remove_all_assigned();
+          //     decision_tree.front()->value = U;
+          //     decision_tree.front()->set_changed();
+          //     decision_tree.pop_front();
+          //   }
+          //     /* flip last decision */
+          //   else {
+          //     decision_tree.front()->value = decision_tree.front()->value ^ 1;
+          //     decision_tree.front()->set_changed();
+          //     decision_tree.front()->set_all_assigned();
+          //     no_of_backtracks++;
+          //     wpi = decision_tree.front();
+          //   }
+          // }
+          // if (!wpi) no_test = true;
+          goto backtrack;  // if we want multiple patterns per fault
         } // if total_attempt_num > attempt_num
       }  // if check_test()
     } // again

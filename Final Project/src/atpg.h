@@ -68,6 +68,7 @@ class ATPG {
   /* defined in main.cpp */
   void set_fsim_only(const bool &);
   void set_tdfsim_only(const bool &);
+  void set_tdfatpg_only(const bool &);
   void read_vectors(const string &);
   void set_total_attempt_num(const int &);
   void set_backtrack_limit(const int &);
@@ -133,6 +134,7 @@ class ATPG {
   int total_attempt_num;               /* number of test generation attempted for each fault  */
   bool fsim_only;                      /* flag to indicate fault simulation only */
   bool tdfsim_only;                    /* flag to indicate tdfault simulation only */
+  bool tdfatpg_only;
 
   /* used in input.cpp to parse circuit*/
   int debug;                           /* != 0 if debugging;  this is a switch of debug mode */
@@ -194,7 +196,8 @@ class ATPG {
   int no_of_backtracks{};  // current number of backtracks
   bool find_test{};        // true when a test pattern is found
   bool no_test{};          // true when it is proven that no test exists for this fault
-
+  
+  int tdfpodem(fptr, int &);
   int podem(fptr, int &);
   wptr fault_evaluate(fptr);
   void forward_imply(wptr);

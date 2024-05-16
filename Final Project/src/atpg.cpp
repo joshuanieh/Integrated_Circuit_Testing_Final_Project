@@ -45,46 +45,76 @@ void ATPG::test() {
 
     /* test generation mode */
     /* Figure 5 in the PODEM paper */
-    while (fault_under_test != nullptr) {
-        switch (podem(fault_under_test, current_backtracks)) {
-            case TRUE:
-                /* form a vector */
-                vec.clear();
-                for (wptr w: cktin) {
-                    vec.push_back(itoc(w->value));
-                }
-                /*by defect, we want only one pattern per fault */
-                /*run a fault simulation, drop ALL detected faults */
-                if (total_attempt_num == 1) {
-                    fault_sim_a_vector(vec, current_detect_num);
-                    total_detect_num += current_detect_num;
-                }
-                    /* If we want mutiple petterns per fault,
-                     * NO fault simulation.  drop ONLY the fault under test */
-                else {
+    if (tdfatpg_only) {
+        while (fault_under_test != nullptr) {
+            switch (tdfpodem(fault_under_test, current_backtracks)) {
+                case TRUE:
                     fault_under_test->detect = TRUE;
                     /* drop fault_under_test */
                     flist_undetect.remove(fault_under_test);
-                }
-                in_vector_no++;
-                break;
-            case FALSE:fault_under_test->detect = REDUNDANT;
-                no_of_redundant_faults++;
-                break;
+                    in_vector_no++;
+                    break;
+                case FALSE:fault_under_test->detect = REDUNDANT;
+                    no_of_redundant_faults++;
+                    break;
 
-            case MAYBE:no_of_aborted_faults++;
-                break;
-        }
-        fault_under_test->test_tried = true;
-        fault_under_test = nullptr;
-        for (fptr fptr_ele: flist_undetect) {
-            if (!fptr_ele->test_tried) {
-                fault_under_test = fptr_ele;
-                break;
+                case MAYBE:no_of_aborted_faults++;
+                    break;
             }
+            fault_under_test->test_tried = true;
+            fault_under_test = nullptr;
+            for (fptr fptr_ele: flist_undetect) {
+                if (!fptr_ele->test_tried) {
+                    fault_under_test = fptr_ele;
+                    break;
+                }
+            }
+            total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
+            no_of_calls++;
         }
-        total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
-        no_of_calls++;
+    }
+    else {
+        while (fault_under_test != nullptr) {
+            switch (podem(fault_under_test, current_backtracks)) {
+                case TRUE:
+                    /* form a vector */
+                    vec.clear();
+                    for (wptr w: cktin) {
+                        vec.push_back(itoc(w->value));
+                    }
+                    /*by defect, we want only one pattern per fault */
+                    /*run a fault simulation, drop ALL detected faults */
+                    if (total_attempt_num == 1) {
+                        fault_sim_a_vector(vec, current_detect_num);
+                        total_detect_num += current_detect_num;
+                    }
+                        /* If we want mutiple petterns per fault,
+                        * NO fault simulation.  drop ONLY the fault under test */
+                    else {
+                        fault_under_test->detect = TRUE;
+                        /* drop fault_under_test */
+                        flist_undetect.remove(fault_under_test);
+                    }
+                    in_vector_no++;
+                    break;
+                case FALSE:fault_under_test->detect = REDUNDANT;
+                    no_of_redundant_faults++;
+                    break;
+
+                case MAYBE:no_of_aborted_faults++;
+                    break;
+            }
+            fault_under_test->test_tried = true;
+            fault_under_test = nullptr;
+            for (fptr fptr_ele: flist_undetect) {
+                if (!fptr_ele->test_tried) {
+                    fault_under_test = fptr_ele;
+                    break;
+                }
+            }
+            total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
+            no_of_calls++;
+        }
     }
 
     display_undetect();

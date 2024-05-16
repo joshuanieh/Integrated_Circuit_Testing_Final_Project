@@ -314,8 +314,12 @@ char ATPG::itoc(const int &i) {
     case 1:
       return '1';
     case 2:
-      return 'U';
+      return 'x'; //U
     case 0:
       return '0';
+    case 4:
+      return '0';
+    case 3:
+      return '1';
   }
 }
