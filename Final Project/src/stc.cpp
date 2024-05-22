@@ -18,7 +18,8 @@
  * The list is linked by the pnext pointers */
 
 /* fault simulate a set of test vectors */
-/* if vectors[i] can be eliminated, eliminated[i] = true */
+/* if vectors[i] can be eliminated, is_eliminated = true 
+ * and it will be in compressed_vectors                  */
 void ATPG::static_test_compress(vector<string> &compressed_vectors) {
   int i;
   int current_detect_num = 0;
