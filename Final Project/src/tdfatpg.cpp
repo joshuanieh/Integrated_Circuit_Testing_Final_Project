@@ -17,7 +17,7 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
   forward_list<wptr> decision_tree; // design_tree (a LIFO stack)
   wptr wfault;
   int attempt_num = 0;  // counts the number of pattern generated so far for the given fault
-  display_fault(fault);
+  if (nieh) display_fault(fault);
   forward_list<wptr> decision_tree_for_pattern_1; // design_tree (a LIFO stack)
   int no_of_backtracks_1;
   *fake_fault = *fault;
@@ -72,7 +72,7 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
               //Patterns found
               // fprintf(stdout, "T\'");
               no_compression_patterns.clear();
-              switch (cktin[i]->value) {
+              switch (cktin[0]->value) {
                 case 0:
                 case D_bar:
                   no_compression_patterns.push_back("0");
@@ -204,7 +204,7 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
                     
                     // fprintf(stdout, "T\'");
                     no_compression_patterns.clear();
-                    switch (cktin[i]->value) {
+                    switch (cktin[0]->value) {
                       case 0:
                       case D_bar:
                         no_compression_patterns.push_back("0");
@@ -319,7 +319,7 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
       decision_tree.push_front(wpit);
     } else { // no test possible using this assignment, backtrack.
 backtrack:
-
+      if (nieh) cout << "V2 backtrack!\n";
       while (!decision_tree.empty() && (wpit == nullptr)) {
         /* if both 01 already tried, backtrack. Fig.7.7 */
         if (decision_tree.front()->is_all_assigned()) {
@@ -343,7 +343,25 @@ backtrack:
 
 /* this again loop is to generate multiple patterns for a single fault 
  * this part is NOT in the original PODEM paper  */
-
+    if (nieh) {
+      cout << "V2: ";
+      for (i = 0; i < cktin.size(); i++) {
+          switch (cktin[i]->value) {
+            case 0:
+            case D_bar:
+              fprintf(stdout, "0");
+              break;
+            case 1:
+            case D:
+              fprintf(stdout, "1");
+              break;
+            case U:
+              fprintf(stdout, "x");
+              break;
+          }
+      }
+      cout << endl;
+    }
 
     // again:
     if (wpit) {
@@ -362,6 +380,7 @@ backtrack:
         //         cout << i << " : " << cktin[i]->value << endl;
         //       }
         vec.clear();
+        // decision_tree_for_pattern_1.clear();
         for (wptr w: cktin) {
             // cout << w->value << endl;
           vec.push_back(itoc(w->value));
@@ -394,7 +413,7 @@ backtrack:
               
               // fprintf(stdout, "T\'");
               no_compression_patterns.clear();
-              switch (cktin[i]->value) {
+              switch (cktin[0]->value) {
                 case 0:
                 case D_bar:
                   no_compression_patterns.push_back("0");
@@ -478,7 +497,9 @@ backtrack:
                   wpit->set_changed();
                 /* insert a new PI into decision_tree */
                   decision_tree_for_pattern_1.push_front(wpit);
+                  // cout << wpit->wlist_index << endl;
                 } else { // no test possible using this assignment, backtrack.
+                  if (nieh) cout << "V1 backtrack!\n";
                   while (!decision_tree_for_pattern_1.empty() && (wpit == nullptr)) {
                     /* if both 01 already tried, backtrack. Fig.7.7 */
                     if (decision_tree_for_pattern_1.front()->is_all_assigned()) {
@@ -519,14 +540,33 @@ backtrack:
                   goto backtrack;
                 } //try other pattern 2
                 else { //if (wpit)
+if (nieh) {
+  cout << "V1: ";
+  for (int h = 0; h < cktin.size(); h++) {
+      switch (cktin[h]->value) {
+        case 0:
+        case D_bar:
+          fprintf(stdout, "0");
+          break;
+        case 1:
+        case D:
+          fprintf(stdout, "1");
+          break;
+        case U:
+          fprintf(stdout, "x");
+          break;
+      }
+  }
+  fprintf(stdout, "\n");
+}
                 // cout << wpit->name << endl;
                   sim();
                   if (sort_wlist[fault->to_swlist]->value == !(fake_fault->fault_type)) {
-                    //Patterns found
+                    cout << "Patterns found\n";
                     
                     // fprintf(stdout, "T\'");
                     no_compression_patterns.clear();
-                    switch (cktin[i]->value) {
+                    switch (cktin[0]->value) {
                       case 0:
                       case D_bar:
                         no_compression_patterns.push_back("0");
@@ -577,6 +617,7 @@ backtrack:
                     find_test = true; // if fault effect reaches PO, done. Fig 7.10
                     attempt_num++;
                     no_compression_attempt_num += no_compression_patterns.size();
+                    // cout << no_compression_patterns.size() << endl;
                     for (auto st : no_compression_patterns) {
                       if (vec[0] == 'x') {
                         st0 = st + " 0";
@@ -599,7 +640,10 @@ backtrack:
                         else sort_wlist[i]->remove_all_assigned();
                     }
                     wpit = nullptr;
+                    // cout << "GO " << attempt_num << " " << total_attempt_num << endl;
                     if (attempt_num != total_attempt_num) goto backtrack;
+                    else break;
+                    // cout << "Invisible" << endl;
                   }
                 } // again
               } // while (one conditions)
@@ -633,7 +677,7 @@ backtrack:
   
   if (no_test) {
     if (total_no_compression_patterns.size() < total_attempt_num) {
-      fprintf(stdout,"redundant fault...\n\n");
+      if (nieh) fprintf(stdout,"redundant fault...\n\n");
       // for (auto st : total_no_compression_patterns) {
       //   cout << "T\'" << st << "\'\n";
       // }
@@ -642,7 +686,7 @@ backtrack:
       for (auto st : total_no_compression_patterns) {
         cout << "T\'" << st << "\'\n";
       }
-      cout << "\n";
+      if (nieh) cout << "\n";
       return (TRUE);
     }
     return (FALSE);
@@ -672,7 +716,7 @@ backtrack:
     for (auto st : total_no_compression_patterns) {
       cout << "T\'" << st << "\'\n";
     }
-    cout << "\n";
+    if (nieh) cout << "\n";
     return (TRUE);
   } else {
     fprintf(stdout,"test aborted due to backtrack limit...\n\n");
