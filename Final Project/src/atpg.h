@@ -69,6 +69,7 @@ class ATPG {
   void set_fsim_only(const bool &);
   void set_tdfsim_only(const bool &);
   void set_tdfatpg_only(const bool &);
+  void set_compression(const bool &);
   void read_vectors(const string &);
   void set_total_attempt_num(const int &);
   void set_backtrack_limit(const int &);
@@ -94,6 +95,11 @@ class ATPG {
   int num_of_tdf_fault{};
   int detected_num{};
   bool get_tdfsim_only() { return tdfsim_only; }
+
+  /*defined in stc.cpp*/
+  void static_test_compress(vector<string> &);
+  void tdfault_sim_a_vector_STC(const string &, bool &);
+  void tdfault_sim_a_vector2_STC(const string &, bool &);
 
   /* defined in atpg.cpp */
   void test();
@@ -128,6 +134,7 @@ class ATPG {
   /* test vector  */
   int in_vector_no;                    /* number of test vectors generated */
   vector<string> vectors;              /* vector set */
+  vector<string> compressed_vectors;   /* compressed vector set */
 
   /* declared in tpgmain.cpp */
   int backtrack_limit;
@@ -135,6 +142,7 @@ class ATPG {
   bool fsim_only;                      /* flag to indicate fault simulation only */
   bool tdfsim_only;                    /* flag to indicate tdfault simulation only */
   bool tdfatpg_only;
+  bool compress;                       /* flag to indicate whether to compress vectors */
 
   wptr wpit; // points to the PI currently being assigned
   wptr wpit_1;

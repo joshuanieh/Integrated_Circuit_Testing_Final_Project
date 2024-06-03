@@ -44,6 +44,11 @@ int main(int argc, char *argv[]) {
       atpg.detected_num = atoi(argv[i + 1]);
       atpg.set_total_attempt_num(atoi(argv[i + 1]));
       i += 2;
+    }
+      // for compression
+    else if (strcmp(argv[i], "-compression") == 0) {
+      atpg.set_compression(true);
+      i += 1;
     } else if (argv[i][0] == '-') {
       j = 1;
       while (argv[i][j] != '\0') {
@@ -114,6 +119,10 @@ void ATPG::set_tdfsim_only(const bool &b) {
 
 void ATPG::set_tdfatpg_only(const bool &b) {
   this->tdfatpg_only = b;
+}
+
+void ATPG::set_compression(const bool &b) {
+  this->compress = b;
 }
 
 void ATPG::set_total_attempt_num(const int &i) {

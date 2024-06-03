@@ -116,6 +116,10 @@ void ATPG::test() {
             no_of_calls++;
         }
     }
+    compressed_vectors.clear();
+    if (compress) {
+        static_test_compress(compressed_vectors);
+    }
 
     display_undetect();
     fprintf(stdout, "\n");
@@ -141,6 +145,8 @@ ATPG::ATPG() {
     this->total_attempt_num = 1;    /* default value */
     this->fsim_only = false;        /* flag to indicate fault simulation only */
     this->tdfsim_only = false;      /* flag to indicate tdfault simulation only */
+    this->tdfatpg_only = false;
+    this->compress = false;         /* flag to indicate whether to compress vectors */
 
     /* orginally assigned in input.c */
     this->debug = 0;                /* != 0 if debugging;  this is a switch of debug mode */
