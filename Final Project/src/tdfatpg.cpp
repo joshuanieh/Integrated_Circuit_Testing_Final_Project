@@ -22,6 +22,11 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
   int no_of_backtracks_1;
   *fake_fault = *fault;
   fake_fault->fault_type ^= 1;
+  vector<string> total_no_compression_patterns;
+  vector<string> no_compression_patterns;
+  vector<string> temp;
+  string st0;
+  int no_compression_attempt_num = 0;  // counts the number of pattern generated so far for the given fault
 
   /* initialize all circuit wires to unknown */
   ncktwire = sort_wlist.size();
@@ -65,30 +70,72 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
             sim();  // Fig 7.3
             if (sort_wlist[fault->to_swlist]->value == !(fake_fault->fault_type)) {
               //Patterns found
-              fprintf(stdout, "T\'");
-              for (i = 0; i < cktin.size(); i++) {
+              // fprintf(stdout, "T\'");
+              no_compression_patterns.clear();
+              switch (cktin[i]->value) {
+                case 0:
+                case D_bar:
+                  no_compression_patterns.push_back("0");
+                  // fprintf(stdout, "0");
+                  break;
+                case 1:
+                case D:
+                  no_compression_patterns.push_back("1");
+                  // fprintf(stdout, "1");
+                  break;
+                case U:
+                  no_compression_patterns.push_back("0");
+                  no_compression_patterns.push_back("1");
+                  // fprintf(stdout, "x");
+                  break;
+              }
+              
+              for (i = 1; i < cktin.size(); i++) {
                 switch (cktin[i]->value) {
                   case 0:
-                    fprintf(stdout, "0");
+                  case D_bar:
+                    // fprintf(stdout, "0");
+                    for (auto& st : no_compression_patterns) {
+                      st = st + "0";
+                    }
                     break;
                   case 1:
-                    fprintf(stdout, "1");
+                  case D:
+                    // fprintf(stdout, "1");
+                    for (auto& st : no_compression_patterns) {
+                      st = st + "1";
+                    }
                     break;
                   case U:
-                    fprintf(stdout, "x");
-                    break;
-                  case D:
-                    fprintf(stdout, "1");
-                    break;
-                  case D_bar:
-                    fprintf(stdout, "0");
+                    // fprintf(stdout, "x");
+                    temp = no_compression_patterns;
+                    for (auto& st : no_compression_patterns) {
+                      st = st + "0";
+                    }
+                    for (auto st : temp) {
+                      st = st + "1";
+                      no_compression_patterns.push_back(st);
+                    }
                     break;
                 }
               }
-              cout << " " << vec[0];
-              fprintf(stdout, "'\n");
+              // cout << " " << vec[0];
+              // fprintf(stdout, "'\n");
               find_test = true; // if fault effect reaches PO, done. Fig 7.10
               attempt_num++;
+              no_compression_attempt_num += no_compression_patterns.size();
+              for (auto st : no_compression_patterns) {
+                if (vec[0] == 'x') {
+                  st0 = st + " 0";
+                  st = st + " 1";
+                  total_no_compression_patterns.push_back(st0);
+                }
+                else {
+                  st = st + " " + vec[0];
+                }
+                
+                total_no_compression_patterns.push_back(st);
+              }
               decision_tree_for_pattern_1.clear();
               for (i = cktin.size(); i < ncktwire; i++) {
                 sort_wlist[i]->value = U;
@@ -105,7 +152,6 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
               no_of_backtracks_1 = 0;
               while ((no_of_backtracks_1 < backtrack_limit)) {
                 /* check if test possible.   Fig. 7.1 */
-                if (nieh) cout << 50 << endl;//////////////////////////////////////////
                 if (wpit = test_possible(fake_fault)) {
                   wpit->remove_all_assigned();
                   wpit->set_changed();
@@ -155,30 +201,72 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
                   sim();
                   if (sort_wlist[fault->to_swlist]->value == !(fake_fault->fault_type)) {
                     //Patterns found
-                    fprintf(stdout, "T\'");
-                    for (i = 0; i < cktin.size(); i++) {
-                        switch (cktin[i]->value) {
-                        case 0:
-                            fprintf(stdout, "0");
-                            break;
-                        case 1:
-                            fprintf(stdout, "1");
-                            break;
-                        case U:
-                            fprintf(stdout, "x");
-                            break;
-                        case D:
-                            fprintf(stdout, "1");
-                            break;
-                        case D_bar:
-                            fprintf(stdout, "0");
-                            break;
-                        }
+                    
+                    // fprintf(stdout, "T\'");
+                    no_compression_patterns.clear();
+                    switch (cktin[i]->value) {
+                      case 0:
+                      case D_bar:
+                        no_compression_patterns.push_back("0");
+                        // fprintf(stdout, "0");
+                        break;
+                      case 1:
+                      case D:
+                        no_compression_patterns.push_back("1");
+                        // fprintf(stdout, "1");
+                        break;
+                      case U:
+                        no_compression_patterns.push_back("0");
+                        no_compression_patterns.push_back("1");
+                        // fprintf(stdout, "x");
+                        break;
                     }
-                    cout << " " << vec[0];
-                    fprintf(stdout, "'\n");
+                    
+                    for (i = 1; i < cktin.size(); i++) {
+                      switch (cktin[i]->value) {
+                        case 0:
+                        case D_bar:
+                          // fprintf(stdout, "0");
+                          for (auto& st : no_compression_patterns) {
+                            st = st + "0";
+                          }
+                          break;
+                        case 1:
+                        case D:
+                          // fprintf(stdout, "1");
+                          for (auto& st : no_compression_patterns) {
+                            st = st + "1";
+                          }
+                          break;
+                        case U:
+                          // fprintf(stdout, "x");
+                          temp = no_compression_patterns;
+                          for (auto& st : no_compression_patterns) {
+                            st = st + "0";
+                          }for (auto st : temp) {
+                            st = st + "1";
+                            no_compression_patterns.push_back(st);
+                          }
+                          break;
+                      }
+                    }
+                    // cout << " " << vec[0];
+                    // fprintf(stdout, "'\n");
                     find_test = true; // if fault effect reaches PO, done. Fig 7.10
                     attempt_num++;
+                    no_compression_attempt_num += no_compression_patterns.size();
+                    for (auto st : no_compression_patterns) {
+                      if (vec[0] == 'x') {
+                        st0 = st + " 0";
+                        st = st + " 1";
+                        total_no_compression_patterns.push_back(st0);
+                      }
+                      else {
+                        st = st + " " + vec[0];
+                      }
+                      
+                      total_no_compression_patterns.push_back(st);
+                    }
                     decision_tree_for_pattern_1.clear();
                     for (i = cktin.size(); i < ncktwire; i++) {
                         sort_wlist[i]->value = U;
@@ -231,7 +319,6 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
       decision_tree.push_front(wpit);
     } else { // no test possible using this assignment, backtrack.
 backtrack:
-      if (nieh) cout << 7 << endl;//////////////////////////////////////////
 
       while (!decision_tree.empty() && (wpit == nullptr)) {
         /* if both 01 already tried, backtrack. Fig.7.7 */
@@ -271,7 +358,6 @@ backtrack:
         //   display_io();
           
         // }
-        if (nieh) cout << 1 << endl;//////////////////////////////////////////
         // for (i=0; i<cktin.size();i++) {
         //         cout << i << " : " << cktin[i]->value << endl;
         //       }
@@ -298,7 +384,6 @@ backtrack:
 
         // cout << "name: " << sort_wlist[fake_fault->to_swlist]->name << endl;
         if (backward_imply(sort_wlist[fake_fault->to_swlist], !(fake_fault->fault_type)) != CONFLICT) {
-            if (nieh) cout << 4 << endl;//////////////////////////////////////////
             sim();  // Fig 7.3
             if (sort_wlist[fault->to_swlist]->value == !(fake_fault->fault_type)) {
               //Patterns found
@@ -306,30 +391,72 @@ backtrack:
             //     cout << i << " : " << cktin[i]->value << endl;
             //   }
             //   cout << endl;
-              fprintf(stdout, "T\'");
-              for (i = 0; i < cktin.size(); i++) {
+              
+              // fprintf(stdout, "T\'");
+              no_compression_patterns.clear();
+              switch (cktin[i]->value) {
+                case 0:
+                case D_bar:
+                  no_compression_patterns.push_back("0");
+                  // fprintf(stdout, "0");
+                  break;
+                case 1:
+                case D:
+                  no_compression_patterns.push_back("1");
+                  // fprintf(stdout, "1");
+                  break;
+                case U:
+                  no_compression_patterns.push_back("0");
+                  no_compression_patterns.push_back("1");
+                  // fprintf(stdout, "x");
+                  break;
+              }
+              
+              for (i = 1; i < cktin.size(); i++) {
                 switch (cktin[i]->value) {
                   case 0:
-                    fprintf(stdout, "0");
+                  case D_bar:
+                    // fprintf(stdout, "0");
+                    for (auto& st : no_compression_patterns) {
+                      st = st + "0";
+                    }
                     break;
                   case 1:
-                    fprintf(stdout, "1");
+                  case D:
+                    // fprintf(stdout, "1");
+                    for (auto& st : no_compression_patterns) {
+                      st = st + "1";
+                    }
                     break;
                   case U:
-                    fprintf(stdout, "x");
-                    break;
-                  case D:
-                    fprintf(stdout, "1");
-                    break;
-                  case D_bar:
-                    fprintf(stdout, "0");
+                    // fprintf(stdout, "x");
+                    temp = no_compression_patterns;
+                    for (auto& st : no_compression_patterns) {
+                      st = st + "0";
+                    }for (auto st : temp) {
+                      st = st + "1";
+                      no_compression_patterns.push_back(st);
+                    }
                     break;
                 }
               }
-              cout << " " << vec[0];
-              fprintf(stdout, "'\n");
+              // cout << " " << vec[0];
+              // fprintf(stdout, "'\n");
               find_test = true; // if fault effect reaches PO, done. Fig 7.10
               attempt_num++;
+              no_compression_attempt_num += no_compression_patterns.size();
+              for (auto st : no_compression_patterns) {
+                if (vec[0] == 'x') {
+                  st0 = st + " 0";
+                  st = st + " 1";
+                  total_no_compression_patterns.push_back(st0);
+                }
+                else {
+                  st = st + " " + vec[0];
+                }
+                
+                total_no_compression_patterns.push_back(st);
+              }
               decision_tree_for_pattern_1.clear();
               for (i = cktin.size(); i < ncktwire; i++) {
                 sort_wlist[i]->value = U;
@@ -343,21 +470,15 @@ backtrack:
               if (attempt_num != total_attempt_num) goto backtrack;
             }
             else {
-              if (nieh) cout << 40 << endl;//////////////////////////////////////////
               no_of_backtracks_1 = 0;
               while ((no_of_backtracks_1 < backtrack_limit)) {
                 /* check if test possible.   Fig. 7.1 */
-                if (nieh) cout << 41 << endl;//////////////////////////////////////////
                 if (wpit = test_possible(fake_fault)) {
-                  if (nieh) cout << 42 << endl;//////////////////////////////////////////
                   wpit->remove_all_assigned();
-                  if (nieh) cout << 42 << endl;//////////////////////////////////////////
                   wpit->set_changed();
                 /* insert a new PI into decision_tree */
                   decision_tree_for_pattern_1.push_front(wpit);
-                  if (nieh) cout << 43 << endl;//////////////////////////////////////////
                 } else { // no test possible using this assignment, backtrack.
-                  if (nieh) cout << 44 << endl;//////////////////////////////////////////
                   while (!decision_tree_for_pattern_1.empty() && (wpit == nullptr)) {
                     /* if both 01 already tried, backtrack. Fig.7.7 */
                     if (decision_tree_for_pattern_1.front()->is_all_assigned()) {
@@ -376,10 +497,8 @@ backtrack:
                       wpit = decision_tree_for_pattern_1.front();
                     }
                   } // while decision tree && ! wpit
-                  if (nieh) cout << 45 << endl;//////////////////////////////////////////
                   
                 } // no test possible
-                if (nieh) cout << 46 << endl;//////////////////////////////////////////
 
             /* this again loop is to generate multiple patterns for a single fault 
             * this part is NOT in the original PODEM paper  */
@@ -404,30 +523,72 @@ backtrack:
                   sim();
                   if (sort_wlist[fault->to_swlist]->value == !(fake_fault->fault_type)) {
                     //Patterns found
-                    fprintf(stdout, "T\'");
-                    for (i = 0; i < cktin.size(); i++) {
-                        switch (cktin[i]->value) {
-                        case 0:
-                            fprintf(stdout, "0");
-                            break;
-                        case 1:
-                            fprintf(stdout, "1");
-                            break;
-                        case U:
-                            fprintf(stdout, "x");
-                            break;
-                        case D:
-                            fprintf(stdout, "1");
-                            break;
-                        case D_bar:
-                            fprintf(stdout, "0");
-                            break;
-                        }
+                    
+                    // fprintf(stdout, "T\'");
+                    no_compression_patterns.clear();
+                    switch (cktin[i]->value) {
+                      case 0:
+                      case D_bar:
+                        no_compression_patterns.push_back("0");
+                        // fprintf(stdout, "0");
+                        break;
+                      case 1:
+                      case D:
+                        no_compression_patterns.push_back("1");
+                        // fprintf(stdout, "1");
+                        break;
+                      case U:
+                        no_compression_patterns.push_back("0");
+                        no_compression_patterns.push_back("1");
+                        // fprintf(stdout, "x");
+                        break;
                     }
-                    cout << " " << vec[0];
-                    fprintf(stdout, "'\n");
+                    
+                    for (i = 1; i < cktin.size(); i++) {
+                      switch (cktin[i]->value) {
+                        case 0:
+                        case D_bar:
+                          // fprintf(stdout, "0");
+                          for (auto& st : no_compression_patterns) {
+                            st = st + "0";
+                          }
+                          break;
+                        case 1:
+                        case D:
+                          // fprintf(stdout, "1");
+                          for (auto& st : no_compression_patterns) {
+                            st = st + "1";
+                          }
+                          break;
+                        case U:
+                          // fprintf(stdout, "x");
+                          temp = no_compression_patterns;
+                          for (auto& st : no_compression_patterns) {
+                            st = st + "0";
+                          }for (auto st : temp) {
+                            st = st + "1";
+                            no_compression_patterns.push_back(st);
+                          }
+                          break;
+                      }
+                    }
+                    // cout << " " << vec[0];
+                    // fprintf(stdout, "'\n");
                     find_test = true; // if fault effect reaches PO, done. Fig 7.10
                     attempt_num++;
+                    no_compression_attempt_num += no_compression_patterns.size();
+                    for (auto st : no_compression_patterns) {
+                      if (vec[0] == 'x') {
+                        st0 = st + " 0";
+                        st = st + " 1";
+                        total_no_compression_patterns.push_back(st0);
+                      }
+                      else {
+                        st = st + " " + vec[0];
+                      }
+                      
+                      total_no_compression_patterns.push_back(st);
+                    }
                     decision_tree_for_pattern_1.clear();
                     for (i = cktin.size(); i < ncktwire; i++) {
                         sort_wlist[i]->value = U;
@@ -443,26 +604,20 @@ backtrack:
                 } // again
               } // while (one conditions)
             }
-            if (nieh) cout << 5 << endl;//////////////////////////////////////////
         }
         else {
-            if (nieh) cout << 6 << endl;//////////////////////////////////////////
             decision_tree_for_pattern_1.clear();
-            if (nieh) cout << 9 << endl;//////////////////////////////////////////
             for (i = cktin.size(); i < ncktwire; i++) {
                 sort_wlist[i]->value = U;
             }
-            if (nieh) cout << vec << endl;//////////////////////////////////////////
             for (i = 0; i < cktin.size(); i++) {
                 sort_wlist[i]->value = ctoi(vec[i]); //change back to original first pattern
                 if (sort_wlist[i]->all_assigned) sort_wlist[i]->set_all_assigned();
                 else sort_wlist[i]->remove_all_assigned();
             }
-            if (nieh) cout << 11 << endl;//////////////////////////////////////////
             wpit = nullptr;
             goto backtrack;
         }
-        if (nieh) cout << 3 << endl;//////////////////////////////////////////
       }  // if check_test()
     } // again
   } // while (three conditions)
@@ -477,7 +632,19 @@ backtrack:
   unmark_propagate_tree(fault->node);
   
   if (no_test) {
-    fprintf(stdout,"redundant fault...\n\n");
+    if (total_no_compression_patterns.size() < total_attempt_num) {
+      fprintf(stdout,"redundant fault...\n\n");
+      // for (auto st : total_no_compression_patterns) {
+      //   cout << "T\'" << st << "\'\n";
+      // }
+    }
+    else {
+      for (auto st : total_no_compression_patterns) {
+        cout << "T\'" << st << "\'\n";
+      }
+      cout << "\n";
+      return (TRUE);
+    }
     return (FALSE);
   } 
   else if (find_test) {
@@ -502,7 +669,10 @@ backtrack:
     //   }
     //   display_io();
     // } else fprintf(stdout, "\n");  // do not random fill when multiple patterns per fault
-    fprintf(stdout, "\n");
+    for (auto st : total_no_compression_patterns) {
+      cout << "T\'" << st << "\'\n";
+    }
+    cout << "\n";
     return (TRUE);
   } else {
     fprintf(stdout,"test aborted due to backtrack limit...\n\n");
