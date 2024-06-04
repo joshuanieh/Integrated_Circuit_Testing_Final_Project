@@ -719,10 +719,11 @@ if (nieh_speaks_details) {
   if (no_test) {
     if (total_no_compression_patterns.size() < total_attempt_num) {
       if (nieh_speaks) {
-        for (auto st : total_no_compression_patterns) {
-          cout << "T\'" << st << "\'\n";
-        }
+        
         fprintf(stdout,"redundant fault...\n\n");
+      }
+      for (auto st : total_no_compression_patterns) {
+        cout << "T\'" << st << "\'\n";
       }
     }
     else {
