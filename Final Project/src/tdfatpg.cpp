@@ -12,6 +12,7 @@
 /* generates a single pattern for a transition delay fault */
 int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
   bool nieh_speaks = false;
+  bool nieh_speaks_details = false;
   string vec;
   int i, ncktwire, ncktin;
   forward_list<wptr> decision_tree; // design_tree (a LIFO stack)
@@ -320,7 +321,7 @@ int ATPG::tdfpodem(const fptr fault, int &current_backtracks) {
       decision_tree.push_front(wpit);
     } else { // no test possible using this assignment, backtrack.
 backtrack:
-      if (nieh_speaks) cout << "V2 backtrack!\n";
+      if (nieh_speaks_details) cout << "V2 backtrack!\n";
       while (!decision_tree.empty() && (wpit == nullptr)) {
         /* if both 01 already tried, backtrack. Fig.7.7 */
         if (decision_tree.front()->is_all_assigned()) {
@@ -344,7 +345,7 @@ backtrack:
 
 /* this again loop is to generate multiple patterns for a single fault 
  * this part is NOT in the original PODEM paper  */
-    if (nieh_speaks) {
+    if (nieh_speaks_details) {
       cout << "V2: ";
       for (i = 0; i < cktin.size(); i++) {
           switch (cktin[i]->value) {
@@ -524,7 +525,7 @@ backtrack:
                   decision_tree_for_pattern_1.push_front(wpit);
                   // cout << wpit->wlist_index << endl;
                 } else { // no test possible using this assignment, backtrack.
-                  if (nieh_speaks) cout << "V1 backtrack!\n";
+                  if (nieh_speaks_details) cout << "V1 backtrack!\n";
                   while (!decision_tree_for_pattern_1.empty() && (wpit == nullptr)) {
                     /* if both 01 already tried, backtrack. Fig.7.7 */
                     if (decision_tree_for_pattern_1.front()->is_all_assigned()) {
@@ -570,7 +571,7 @@ backtrack:
                   goto backtrack;
                 } //try other pattern 2
                 else { //if (wpit)
-if (nieh_speaks) {
+if (nieh_speaks_details) {
   cout << "V1: ";
   for (int h = 0; h < cktin.size(); h++) {
       switch (cktin[h]->value) {
@@ -592,7 +593,7 @@ if (nieh_speaks) {
                 // cout << wpit->name << endl;
                   sim();
                   if (sort_wlist[fault->to_swlist]->value == !(fake_fault->fault_type)) {
-                    cout << "Patterns found\n";
+                    if (nieh_speaks_details) cout << "Patterns found\n";
                     
                     // fprintf(stdout, "T\'");
                     no_compression_patterns.clear();
@@ -717,10 +718,12 @@ if (nieh_speaks) {
   
   if (no_test) {
     if (total_no_compression_patterns.size() < total_attempt_num) {
-      if (nieh_speaks) fprintf(stdout,"redundant fault...\n\n");
-      // for (auto st : total_no_compression_patterns) {
-      //   cout << "T\'" << st << "\'\n";
-      // }
+      if (nieh_speaks) {
+        for (auto st : total_no_compression_patterns) {
+          cout << "T\'" << st << "\'\n";
+        }
+        fprintf(stdout,"redundant fault...\n\n");
+      }
     }
     else {
       for (auto st : total_no_compression_patterns) {
