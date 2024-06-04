@@ -85,7 +85,7 @@ int main(int argc, char *argv[]) {
   atpg.create_dummy_gate(); //init_flist.cpp
   atpg.timer(stdout, "for creating dummy nodes");
 
-  if (!atpg.get_tdfsim_only()) atpg.generate_fault_list(); //init_flist.cpp
+  if (!atpg.get_tdfsim_only() && !atpg.get_tdfatpg_only()) atpg.generate_fault_list(); //init_flist.cpp
   else atpg.generate_tdfault_list();
   atpg.timer(stdout, "for generating fault list");
 
