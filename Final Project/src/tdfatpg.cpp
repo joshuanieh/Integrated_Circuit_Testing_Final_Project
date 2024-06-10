@@ -758,6 +758,7 @@ if (nieh_speaks_details) {
     //   display_io();
     // } else fprintf(stdout, "\n");  // do not random fill when multiple patterns per fault
     for (auto st : total_no_compression_patterns) {
+      vectors.push_back(st);
       cout << "T\'" << st << "\'\n";
     }
     if (nieh_speaks) cout << "\n";

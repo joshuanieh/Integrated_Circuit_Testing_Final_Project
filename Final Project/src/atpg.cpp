@@ -116,10 +116,6 @@ void ATPG::test() {
             no_of_calls++;
         }
     }
-    compressed_vectors.clear();
-    if (compress) {
-        static_test_compress(compressed_vectors);
-    }
 
     display_undetect();
     fprintf(stdout, "\n");
