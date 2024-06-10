@@ -154,8 +154,7 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
   for (auto pos = flist_undetect_STC.cbegin(); pos != flist_undetect_STC.cend(); ++pos) {
     int fault_detected[num_of_pattern] = {0};
     f = *pos;
-    if (f->detect == REDUNDANT) { continue; } /* ignore redundant faults */
-    if (f->activate == FALSE) {
+    if (f->activate == FALSE || f->detect == REDUNDANT) { /* ignore inactive or redundant faults */
       if ((next(pos, 1) == flist_undetect_STC.cend()) && num_of_fault > 0) {
         goto do_fsim;
       } else { continue; }
