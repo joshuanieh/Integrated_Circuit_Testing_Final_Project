@@ -52,7 +52,6 @@ void ATPG::test() {
                     fault_under_test->detect = TRUE;
                     /* drop fault_under_test */
                     flist_undetect.remove(fault_under_test);
-                    in_vector_no++;
                     break;
                 case FALSE:fault_under_test->detect = REDUNDANT;
                     no_of_redundant_faults++;
@@ -72,6 +71,7 @@ void ATPG::test() {
             total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
             no_of_calls++;
         }
+        in_vector_no = vectors.size();
     }
     else {
         while (fault_under_test != nullptr) {

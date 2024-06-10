@@ -2,7 +2,7 @@
 /*  Static Test Compression (STC) by Reverse-Order Fault Simulation   */
 /*                                                                    */
 /*           Author: Zong-Han Wu                                      */
-/*           last update : 05/20/2024                                 */
+/*           last update : 06/11/2024                                 */
 /**********************************************************************/
 
 #include "atpg.h"
@@ -40,12 +40,18 @@ void ATPG::static_test_compress() {
   fprintf(stdout, "Start compressing ...\n\n");
   int j = 0;
   for (i = vectors.size() - 1; i >= 0; i--) {
-    if (!flist_undetect_STC.empty()) {
+    if (flist_undetect_STC.empty()) {
+      fprintf(stdout, "vector[%d] = T\'%s\' is eliminated ...\n", i, vectors[i].c_str());
+    }
+    else {
       tdfault_sim_a_vector_STC(vectors[i], is_eliminated);
       if (!is_eliminated) {
         compressed_vectors.push_back(vectors[i]);
         j++;
         fprintf(stdout, "compressed_vector[%d] = vectors[%d] = %s\n", j-1, i, ("T\'"+compressed_vectors[j-1]+"\'").c_str());
+      }
+      else {
+        fprintf(stdout, "vector[%d] = T\'%s\' is eliminated ...\n", i, vectors[i].c_str());
       }
     }
   }
@@ -105,7 +111,7 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
   /* for every input, set its value to the current vector value */
   for (i = 0; i < cktin.size(); i++) {
     if (i == 0)
-      cktin[i]->value = ctoi(vec[cktin.size()]);
+      cktin[i]->value = ctoi(vec.back());
     else
       cktin[i]->value = ctoi(vec[i - 1]);
   }
