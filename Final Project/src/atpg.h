@@ -85,7 +85,7 @@ class ATPG {
   /* defined in init_flist.cpp */
   void create_dummy_gate();
   void generate_fault_list();
-  void compute_fault_coverage();
+  void compute_fault_coverage(bool);
 
   /*defined in tdfsim.cpp*/
   void generate_tdfault_list();
