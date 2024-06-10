@@ -29,6 +29,7 @@ void ATPG::static_test_compress() {
 
   /* for every fault, initialize the flag */
   for (auto pos = flist_undetect_STC.cbegin(); pos != flist_undetect_STC.cend(); ++pos) {
+    if ((*pos)->detect == REDUNDANT) { continue; } /* ignore redundant faults */
     (*pos)->detect = FALSE;
     (*pos)->activate = FALSE;
     (*pos)->detected_time = 0;
@@ -37,23 +38,20 @@ void ATPG::static_test_compress() {
   /* for every vector */
   fprintf(stdout, "========================= STATIC TEST COMPRESSION =========================\n");
   fprintf(stdout, "Start compressing ...\n\n");
+  int j = 0;
   for (i = vectors.size() - 1; i >= 0; i--) {
-    if (flist_undetect_STC.empty()) {
-      fprintf(stdout, "vector[%d] is eliminated...\n", i);
-    }
-    else {
+    if (!flist_undetect_STC.empty()) {
       tdfault_sim_a_vector_STC(vectors[i], is_eliminated);
       if (!is_eliminated) {
         compressed_vectors.push_back(vectors[i]);
-      }
-      else {
-        fprintf(stdout, "vector[%d] is eliminated...\n", i);
+        j++;
+        fprintf(stdout, "compressed_vector[%d] = vectors[%d] = %s\n", j-1, i, ("T\'"+compressed_vectors[j-1]+"\'").c_str());
       }
     }
   }
-  fprintf(stdout, "Number of remaining vectors = %d\n", compressed_vectors.size());
+  fprintf(stdout, "\nNumber of remaining vectors = %d\n", j);
   for (i = 0; i < compressed_vectors.size(); i++) {
-    fprintf(stdout, "compressed_vector[%d] = %s\n", i, compressed_vectors[i].c_str());
+    // fprintf(stdout, "compressed_vector[%d] = %s\n", i, ("T\'"+compressed_vectors[i]+"\'").c_str());
   }
   fprintf(stdout, "\nFinish compressing ...\n");
   fprintf(stdout, "===========================================================================\n");
