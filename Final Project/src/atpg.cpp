@@ -72,6 +72,7 @@ void ATPG::test() {
             total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
             no_of_calls++;
         }
+        in_vector_no = vectors.size();
     }
     else {
         while (fault_under_test != nullptr) {
@@ -115,10 +116,6 @@ void ATPG::test() {
             total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
             no_of_calls++;
         }
-    }
-    compressed_vectors.clear();
-    if (compress) {
-        static_test_compress(compressed_vectors);
     }
 
     display_undetect();

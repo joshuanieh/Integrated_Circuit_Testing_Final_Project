@@ -442,5 +442,7 @@ void ATPG::generate_tdfault_list() {
     //cout << f->fault_no << f->node->name << ":" << (f->io?"O":"I") << (f->io?9:(f->index)) << "SA" << f->fault_type << endl;
   }
 
+  flist_undetect_STC = flist_undetect;
+
   //fprintf(stdout,"#number of equivalent faults = %d\n", fault_num);
 }/* end of generate_fault_list */

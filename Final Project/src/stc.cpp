@@ -2,7 +2,7 @@
 /*  Static Test Compression (STC) by Reverse-Order Fault Simulation   */
 /*                                                                    */
 /*           Author: Zong-Han Wu                                      */
-/*           last update : 05/20/2024                                 */
+/*           last update : 06/11/2024                                 */
 /**********************************************************************/
 
 #include "atpg.h"
@@ -20,35 +20,48 @@
 /* fault simulate a set of test vectors */
 /* if vectors[i] can be eliminated, is_eliminated = true 
  * and it will be in compressed_vectors                  */
-void ATPG::static_test_compress(vector<string> &compressed_vectors) {
+void ATPG::static_test_compress() {
   int i;
   int current_detect_num = 0;
   bool is_eliminated;
 
+  compressed_vectors.clear();
+
+  /* for every fault, initialize the flag */
+  for (auto pos = flist_undetect_STC.cbegin(); pos != flist_undetect_STC.cend(); ++pos) {
+    if ((*pos)->detect == REDUNDANT) { continue; } /* ignore redundant faults */
+    (*pos)->detect = FALSE;
+    (*pos)->activate = FALSE;
+    (*pos)->detected_time = 0;
+  }
+
   /* for every vector */
-  fprintf(stdout, "=========================================================\n");
+  fprintf(stdout, "========================= STATIC TEST COMPRESSION =========================\n");
   fprintf(stdout, "Start compressing ...\n\n");
+  int j = 0;
   for (i = vectors.size() - 1; i >= 0; i--) {
-    if (flist_undetect.empty()) {
-      fprintf(stdout, "vector[%d] is eliminated...\n", i);
+    if (flist_undetect_STC.empty()) {
+      // fprintf(stdout, "vector[%d] = T\'%s\' is eliminated ...\n", i, vectors[i].c_str());
     }
     else {
       tdfault_sim_a_vector_STC(vectors[i], is_eliminated);
       if (!is_eliminated) {
         compressed_vectors.push_back(vectors[i]);
+        j++;
+        fprintf(stdout, "compressed_vector[%d] = vectors[%d] = %s\n", j-1, i, ("T\'"+compressed_vectors[j-1]+"\'").c_str());
       }
       else {
-        fprintf(stdout, "vector[%d] is eliminated...\n", i);
+        // fprintf(stdout, "vector[%d] = T\'%s\' is eliminated ...\n", i, vectors[i].c_str());
       }
     }
   }
-  fprintf(stdout, "Number of compressed vectors = %d\n", compressed_vectors.size());
+  fprintf(stdout, "\nNumber of remaining vectors = %d\n", j);
   for (i = 0; i < compressed_vectors.size(); i++) {
-    fprintf(stdout, "compressed_vector[%d] = %s\n", i, compressed_vectors[i].c_str());
+    // fprintf(stdout, "compressed_vector[%d] = %s\n", i, ("T\'"+compressed_vectors[i]+"\'").c_str());
   }
   fprintf(stdout, "\nFinish compressing ...\n");
-  fprintf(stdout, "=========================================================\n");
-}// fault_simulate_vectors
+  fprintf(stdout, "===========================================================================\n");
+} /* end of static_test_compress */
 
 void ATPG::tdfault_sim_a_vector_STC(const string &vec, bool &is_eliminated) {
   int i, nckt;
@@ -68,17 +81,14 @@ void ATPG::tdfault_sim_a_vector_STC(const string &vec, bool &is_eliminated) {
   }
 
   sim(); /* do a fault-free simulation, see sim.c */
-  for (auto pos = flist_undetect.cbegin(); pos != flist_undetect.cend(); ++pos) {
+  for (auto pos = flist_undetect_STC.cbegin(); pos != flist_undetect_STC.cend(); ++pos) {
     f = *pos;
-    if (f->fault_type == sort_wlist[f->to_swlist]->value) {
-      f->activate = TRUE;
-    } else
-      f->activate = FALSE;
+    if (f->fault_type == sort_wlist[f->to_swlist]->value) { f->activate = TRUE; }
   }
 
   tdfault_sim_a_vector2_STC(vec, is_eliminated);
 
-}
+} /* end of tdfault_sim_a_vector_STC */
 
 /* fault simulate a single test vector */
 void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
@@ -101,7 +111,7 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
   /* for every input, set its value to the current vector value */
   for (i = 0; i < cktin.size(); i++) {
     if (i == 0)
-      cktin[i]->value = ctoi(vec[cktin.size()]);
+      cktin[i]->value = ctoi(vec.back());
     else
       cktin[i]->value = ctoi(vec[i - 1]);
   }
@@ -141,12 +151,11 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
 
   /* walk through every undetected fault
    * the undetected fault list is linked by pnext_undetect */
-  for (auto pos = flist_undetect.cbegin(); pos != flist_undetect.cend(); ++pos) {
+  for (auto pos = flist_undetect_STC.cbegin(); pos != flist_undetect_STC.cend(); ++pos) {
     int fault_detected[num_of_pattern] = {0};
     f = *pos;
-    if (f->detect == REDUNDANT) { continue; } /* ignore redundant faults */
-    if (f->activate == FALSE) {
-      if ((next(pos, 1) == flist_undetect.cend()) && num_of_fault > 0) {
+    if (f->activate == FALSE || f->detect == REDUNDANT) { /* ignore inactive or redundant faults */
+      if ((next(pos, 1) == flist_undetect_STC.cend()) && num_of_fault > 0) {
         goto do_fsim;
       } else { continue; }
     } /* ignore redundant faults */
@@ -236,9 +245,9 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
      */
 
     /* if this packet is full (16 faults)
-     * or there is no more undetected faults remaining (pos points to the final element of flist_undetect),
+     * or there is no more undetected faults remaining (pos points to the final element of flist_undetect_STC),
      * do the fault simulation */
-    if ((num_of_fault == num_of_pattern) || (next(pos, 1) == flist_undetect.cend())) {
+    if ((num_of_fault == num_of_pattern) || (next(pos, 1) == flist_undetect_STC.cend())) {
       do_fsim:
       /* starting with start_wire_index, evaulate all scheduled wires
        * start_wire_index helps to save time. */
@@ -291,7 +300,7 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
 
   /* fault dropping  */
   is_eliminated = true;
-  flist_undetect.remove_if(
+  flist_undetect_STC.remove_if(
       [&](const fptr fptr_ele) {
         if (fptr_ele->detect == TRUE) {
           // string IO;
@@ -314,4 +323,4 @@ void ATPG::tdfault_sim_a_vector2_STC(const string &vec, bool &is_eliminated) {
         }
       });
 
-}/* end of fault_sim_a_vector */
+}/* end of fault_sim_a_vector2_STC */

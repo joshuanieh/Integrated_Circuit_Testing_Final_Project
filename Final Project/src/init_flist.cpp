@@ -181,7 +181,10 @@ void ATPG::generate_fault_list() {
 }/* end of generate_fault_list */
 
 /* computing the actual fault coverage */
-void ATPG::compute_fault_coverage() {
+void ATPG::compute_fault_coverage(bool has_stc) {
+  if (!has_stc) fprintf(stdout, "\n============== Fault coverage BEFORE static test compression ==============\n");
+  else fprintf(stdout, "\n============== Fault coverage AFTER static test compression ===============\n");
+
   double gate_fault_coverage, eqv_gate_fault_coverage;
   int no_of_detect, eqv_no_of_detect, eqv_num_of_gate_fault;
   fptr f;
@@ -241,7 +244,8 @@ void ATPG::compute_fault_coverage() {
   /* print out fault coverage results */
   fprintf(stdout, "\n");
   fprintf(stdout, "#FAULT COVERAGE RESULTS :\n");
-  fprintf(stdout, "#number of test vectors = %d\n", in_vector_no);
+  if (has_stc) fprintf(stdout, "#number of test vectors (after STC) = %d\n", compressed_vectors.size());
+  else fprintf(stdout, "#number of test vectors = %d\n", in_vector_no);
   fprintf(stdout,
           "#total number of gate faults (uncollapsed) = %d\n",
           num_of_gate_fault);  // uncollapsed gate-level fault
@@ -251,6 +255,7 @@ void ATPG::compute_fault_coverage() {
   fprintf(stdout, "#number of equivalent detected faults = %d\n", eqv_no_of_detect);
   fprintf(stdout, "#equivalent gate fault coverage = %5.2f%%\n", eqv_gate_fault_coverage);
   fprintf(stdout, "\n");
+  fprintf(stdout, "===========================================================================\n\n");
 }/* end of compute_fault_coverage */
 
 /* for each PI and PO in the whole circuit,

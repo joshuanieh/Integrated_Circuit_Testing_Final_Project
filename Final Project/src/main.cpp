@@ -90,7 +90,9 @@ int main(int argc, char *argv[]) {
   atpg.timer(stdout, "for generating fault list");
 
   atpg.test(); //atpg.cpp
-  if (!atpg.get_tdfsim_only())atpg.compute_fault_coverage(); //init_flist.cpp
+  if (!atpg.get_tdfsim_only())atpg.compute_fault_coverage(false); //init_flist.cpp
+  if (atpg.get_compression()) { atpg.static_test_compress(); } //stc.cpp
+  if (!atpg.get_tdfsim_only())atpg.compute_fault_coverage(true); //init_flist.cpp
   atpg.timer(stdout, "for test pattern generation");
   exit(EXIT_SUCCESS);
 }

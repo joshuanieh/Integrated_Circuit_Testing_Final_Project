@@ -801,6 +801,7 @@ if (nieh_speaks_details) {
     //print anyway
     in_vector_no += total_no_compression_patterns.size();
     for (auto st : total_no_compression_patterns) {
+      vectors.push_back(st);
       cout << "T\'" << st << "\'\n";
     }
   }

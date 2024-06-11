@@ -85,7 +85,7 @@ class ATPG {
   /* defined in init_flist.cpp */
   void create_dummy_gate();
   void generate_fault_list();
-  void compute_fault_coverage();
+  void compute_fault_coverage(bool);
 
   /*defined in tdfsim.cpp*/
   void generate_tdfault_list();
@@ -96,9 +96,10 @@ class ATPG {
   int detected_num{};
   bool get_tdfsim_only() { return tdfsim_only; }
   bool get_tdfatpg_only() { return tdfatpg_only; }
+  bool get_compression() { return compress; }
 
   /*defined in stc.cpp*/
-  void static_test_compress(vector<string> &);
+  void static_test_compress();
   void tdfault_sim_a_vector_STC(const string &, bool &);
   void tdfault_sim_a_vector2_STC(const string &, bool &);
 
@@ -122,6 +123,7 @@ class ATPG {
   /* fault list */
   forward_list<fptr_s> flist;          /* fault list */
   forward_list<fptr> flist_undetect;   /* undetected fault list */
+  forward_list<fptr> flist_undetect_STC;   /* undetected fault list for STC */
 
   /* circuit */
   vector<wptr> sort_wlist;             /* sorted wire list with regard to level */
