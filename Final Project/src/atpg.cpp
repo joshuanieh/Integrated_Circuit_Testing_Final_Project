@@ -52,7 +52,7 @@ void ATPG::test() {
                     fault_under_test->detect = TRUE;
                     /* drop fault_under_test */
                     flist_undetect.remove(fault_under_test);
-                    in_vector_no++;
+                    // in_vector_no++;
                     break;
                 case FALSE:fault_under_test->detect = REDUNDANT;
                     no_of_redundant_faults++;
