@@ -48,14 +48,14 @@ void ATPG::static_test_compress() {
       if (!is_eliminated) {
         compressed_vectors.push_back(vectors[i]);
         j++;
-        fprintf(stdout, "compressed_vector[%d] = vectors[%d] = %s\n", j-1, i, ("T\'"+compressed_vectors[j-1]+"\'").c_str());
+        // fprintf(stdout, "compressed_vector[%d] = vectors[%d] = %s\n", j-1, i, ("T\'"+compressed_vectors[j-1]+"\'").c_str());
       }
       else {
         // fprintf(stdout, "vector[%d] = T\'%s\' is eliminated ...\n", i, vectors[i].c_str());
       }
     }
   }
-  fprintf(stdout, "\nNumber of remaining vectors = %d\n", j);
+  // fprintf(stdout, "\nNumber of remaining vectors = %d\n", j);
   for (i = 0; i < compressed_vectors.size(); i++) {
     // fprintf(stdout, "compressed_vector[%d] = %s\n", i, ("T\'"+compressed_vectors[i]+"\'").c_str());
   }

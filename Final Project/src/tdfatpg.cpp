@@ -801,7 +801,6 @@ if (nieh_speaks_details) {
     //print anyway
     in_vector_no += total_no_compression_patterns.size();
     for (auto st : total_no_compression_patterns) {
-      vectors.push_back(st);
       cout << "T\'" << st << "\'\n";
     }
   }
@@ -817,6 +816,7 @@ if (nieh_speaks_details) {
     in_vector_no += random_index.size();
     for (auto g : random_index) {
       // cout << g << endl;
+      vectors.push_back(total_no_compression_patterns[g]);
       cout << "T\'" << total_no_compression_patterns[g] << "\'\n";
     }
     if (nieh_speaks) cout << "\n";
