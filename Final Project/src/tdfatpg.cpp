@@ -1638,11 +1638,8 @@ if (nieh_speaks_details) {
     return (TRUE);
   }
   return (FALSE);
-}/* end of tdfpodem */
+}/* end of tdf2xpodem */
 
-int ATPG::tdf2xpodem(const fptr fault, int &current_backtracks) {
-  return 0;
-}
 void ATPG::tdf2xpodem_dtc()
 {
   int U_PO_idx = 0;
