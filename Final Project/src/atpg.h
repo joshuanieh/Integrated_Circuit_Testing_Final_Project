@@ -212,7 +212,10 @@ class ATPG {
   int no_of_backtracks{};  // current number of backtracks
   bool find_test{};        // true when a test pattern is found
   bool no_test{};          // true when it is proven that no test exists for this fault
-  
+
+  int tdf2xpodem_secondary(fptr);
+  int tdf2xpodem(fptr, int &);
+  void tdf2xpodem_dtc();
   int tdfpodem(fptr, int &);
   int podem(fptr, int &);
   wptr fault_evaluate(fptr);
@@ -346,5 +349,6 @@ class ATPG {
     int to_swlist;             /* index to the sort_wlist[] */
     int fault_no;              /* fault index */
     int detected_time{};         /* for N-detect */
+    bool tried_dtc;            /* for DTC */
   }; // class FAULT
 };// class ATPG
