@@ -145,6 +145,7 @@ class ATPG {
   bool fsim_only;                      /* flag to indicate fault simulation only */
   bool tdfsim_only;                    /* flag to indicate tdfault simulation only */
   bool tdfatpg_only;
+  bool compress_dtc;                   /* flag to indicate whether to dynamically compress vectors during ATPG */
   bool compress;                       /* flag to indicate whether to compress vectors */
 
   wptr wpit; // points to the PI currently being assigned
@@ -213,9 +214,9 @@ class ATPG {
   bool find_test{};        // true when a test pattern is found
   bool no_test{};          // true when it is proven that no test exists for this fault
 
-  int tdf2xpodem_secondary(fptr);
+  int tdf2xpodem_secondary(fptr, int &);
   int tdf2xpodem(fptr, int &);
-  void tdf2xpodem_dtc();
+  void tdf2xpodem_dtc(int &);
   int tdfpodem(fptr, int &);
   int podem(fptr, int &);
   wptr fault_evaluate(fptr);
