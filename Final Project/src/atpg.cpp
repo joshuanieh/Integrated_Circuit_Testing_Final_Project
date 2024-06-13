@@ -46,33 +46,64 @@ void ATPG::test() {
     /* test generation mode */
     /* Figure 5 in the PODEM paper */
     if (tdfatpg_only) {
-        while (fault_under_test != nullptr) {
-            switch (tdfpodem(fault_under_test, current_backtracks)) {
-                case TRUE:
-                    fault_under_test->detect = TRUE;
-                    /* drop fault_under_test */
-                    flist_undetect.remove(fault_under_test);
-                    // in_vector_no++;
-                    break;
-                case FALSE:fault_under_test->detect = REDUNDANT;
-                    no_of_redundant_faults++;
-                    break;
-
-                case MAYBE:no_of_aborted_faults++;
-                    break;
-            }
-            fault_under_test->test_tried = true;
-            fault_under_test = nullptr;
-            for (fptr fptr_ele: flist_undetect) {
-                if (!fptr_ele->test_tried) {
-                    fault_under_test = fptr_ele;
-                    break;
+        if(!compress_dtc){
+            while (fault_under_test != nullptr) {
+                switch (tdfpodem(fault_under_test, current_backtracks)) {
+                    case TRUE:
+                        fault_under_test->detect = TRUE;
+                        /* drop fault_under_test */
+                        flist_undetect.remove(fault_under_test);
+                        // in_vector_no++;
+                        break;
+                    case FALSE:fault_under_test->detect = REDUNDANT;
+                        no_of_redundant_faults++;
+                        break;
+    
+                    case MAYBE:no_of_aborted_faults++;
+                        break;
                 }
+                fault_under_test->test_tried = true;
+                fault_under_test = nullptr;
+                for (fptr fptr_ele: flist_undetect) {
+                    if (!fptr_ele->test_tried) {
+                        fault_under_test = fptr_ele;
+                        break;
+                    }
+                }
+                total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
+                no_of_calls++;
             }
-            total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
-            no_of_calls++;
+            in_vector_no = vectors.size();
         }
-        in_vector_no = vectors.size();
+        else{
+            while (fault_under_test != nullptr) {
+                switch (tdf2xpodem(fault_under_test, current_backtracks)) {
+                    case TRUE:
+                        fault_under_test->detect = TRUE;
+                        /* drop fault_under_test */
+                        flist_undetect.remove(fault_under_test);
+                        // in_vector_no++;
+                        break;
+                    case FALSE:fault_under_test->detect = REDUNDANT;
+                        no_of_redundant_faults++;
+                        break;
+    
+                    case MAYBE:no_of_aborted_faults++;
+                        break;
+                }
+                fault_under_test->test_tried = true;
+                fault_under_test = nullptr;
+                for (fptr fptr_ele: flist_undetect) {
+                    if (!fptr_ele->test_tried) {
+                        fault_under_test = fptr_ele;
+                        break;
+                    }
+                }
+                total_no_of_backtracks += current_backtracks; // accumulate number of backtracks
+                no_of_calls++;
+            }
+            in_vector_no = vectors.size();
+        }
     }
     else {
         while (fault_under_test != nullptr) {
@@ -143,6 +174,7 @@ ATPG::ATPG() {
     this->fsim_only = false;        /* flag to indicate fault simulation only */
     this->tdfsim_only = false;      /* flag to indicate tdfault simulation only */
     this->tdfatpg_only = false;
+    this->compress_dtc = false;     /* flag to indicate whether to dynamically compress vectors during ATPG */
     this->compress = false;         /* flag to indicate whether to compress vectors */
 
     /* orginally assigned in input.c */
@@ -184,5 +216,6 @@ ATPG::FAULT::FAULT() {
     this->eqv_fault_num = 0;
     this->to_swlist = 0;
     this->fault_no = 0;
+    this->tried_dtc = false;
 }
 
