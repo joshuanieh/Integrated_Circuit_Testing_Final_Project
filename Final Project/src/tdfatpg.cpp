@@ -825,3 +825,159 @@ if (nieh_speaks_details) {
   return (FALSE);
 }/* end of tdfpodem */
 
+int ATPG::tdf2xpodem(const fptr fault, int &current_backtracks) {
+  return 0;
+}
+void ATPG::tdf2xpodem_dtc()
+{
+	int U_PO_idx = 0;
+  int continuous_fail_count = 0;
+  int fail_continuous_limit = 2;
+  int select_fault_try = 10;
+	for (fptr fptr_ele : flist_undetect)
+	{
+		fptr_ele->tried_dtc = false;
+	}
+	/*if (ncktin <= 32)
+	{
+		select_fault_try = 15;
+	}*/
+	while (continuous_fail_count < fail_continuous_limit)
+	{
+		// terminating condition: 1. no unknown PO,
+		// 2. check unknown PO still exist
+		while (U_PO_idx < cktout.size())
+		{
+			if (cktout[U_PO_idx]->value == U)
+			{
+				break;
+			}
+			U_PO_idx++;
+		}
+		if (U_PO_idx == cktout.size())
+		{
+			return;
+		}
+
+		fptr f_secondary = nullptr;
+
+		// backtrace from unknown PO!
+		wptr unknown_PO = cktout[U_PO_idx];
+		queue<wptr> q_wire;
+		queue<fptr> q_fault;
+		bool PO_filled = false;
+
+		q_wire.push(unknown_PO);
+		int sl = 0;
+		while (!PO_filled)
+		{
+			while (q_fault.empty() && sl++ < select_fault_try)
+			{
+				if (q_wire.empty())
+				{
+					break;
+				}
+				else
+				{
+					for (wptr w : q_wire.front()->inode.front()->iwire)
+					{
+						if (w->value == U)
+						{
+							q_wire.push(w);
+						}
+					}
+
+					if (!q_wire.front()->udflist.empty())
+					{
+						for (fptr f : q_wire.front()->udflist)
+						{
+							if (f->detect != REDUNDANT && f->tried_dtc != true)
+							{
+								q_fault.push(f);
+							}
+						}
+					}
+					q_wire.pop();
+				}
+			}
+			if (q_fault.empty() || (select_fault_try == 0))
+			{
+				break; // try next unknown PO
+			}
+			f_secondary = q_fault.front();
+			q_fault.pop();
+
+			/*for (int i = 0; i < cktin.size(); i++)
+			{
+				switch (cktin[i]->value)
+				{
+					case 0:
+					case 1:
+					case U:
+						break;
+					case D:
+						cktin[i]->value = 1;
+						break;
+					case D_bar:
+						cktin[i]->value = 0;
+						break;
+				}
+			}
+			switch (last_bit)
+			{
+				case 0:
+				case 1:
+				case U:
+					break;
+				case D:
+					last_bit = 1;
+					break;
+				case D_bar:
+					last_bit = 0;
+					break;
+			}
+			switch (new_bit)
+			{
+				case 0:
+				case 1:
+				case U:
+					break;
+				case D:
+					new_bit = 1;
+					break;
+				case D_bar:
+					new_bit = 0;
+					break;
+			}*/
+
+			for (int i = 0; i < cktin.size(); ++i)
+				sort_wlist[i]->set_changed();
+			for (int i = cktin.size(); i < sort_wlist.size(); ++i)
+				sort_wlist[i]->value = U;
+
+			sim();
+			switch (tdf2xpodem_secondary(f_secondary))
+			{
+				case TRUE:
+					if (unknown_PO->value != U)
+					{
+						PO_filled = true;
+					}
+					break;
+				default:
+					break;
+			}
+			f_secondary->tried_dtc = true;
+		}
+
+		if (unknown_PO->value == U)
+		{
+			U_PO_idx++;
+			continuous_fail_count++;
+		}
+	}
+}
+int ATPG::tdf2xpodem_secondary(const fptr fault) {
+  return 0;
+}
+
