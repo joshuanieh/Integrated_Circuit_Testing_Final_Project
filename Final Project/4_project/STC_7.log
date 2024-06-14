@@ -1,0 +1,37 @@
+For 7-det.
+Compression turns on.
+C432:
+#number of test vectors = 903
+#number of test vectors (after STC) = 152
+# fault coverage: 11.621622 %
+#atpg: cputime for test pattern generation ../sample_circuits/c432.ckt: 0.1s 0.1s
+C499:
+#number of test vectors = 10353
+#number of test vectors (after STC) = 600
+# fault coverage: 94.644351 %
+#atpg: cputime for test pattern generation ../sample_circuits/c499.ckt: 2.4s 2.4s
+C880:
+#number of test vectors = 6461
+#number of test vectors (after STC) = 422
+# fault coverage: 50.332700 %
+#atpg: cputime for test pattern generation ../sample_circuits/c880.ckt: 1.2s 1.2s
+C1355:
+#number of test vectors = 5488
+#number of test vectors (after STC) = 350
+# fault coverage: 38.407924 %
+#atpg: cputime for test pattern generation ../sample_circuits/c1355.ckt: 3.2s 3.2s
+C2670:
+#number of test vectors = 32487
+#number of test vectors (after STC) = 878
+# fault coverage: 93.174847 %
+#atpg: cputime for test pattern generation ../sample_circuits/c2670.ckt: 15.5s 15.5s
+C3540:
+#number of test vectors = 10472
+#number of test vectors (after STC) = 654
+# fault coverage: 23.261694 %
+#atpg: cputime for test pattern generation ../sample_circuits/c3540.ckt: 15.3s 15.3s
+C7552:
+#number of test vectors = 88732
+#number of test vectors (after STC) = 1852
+# fault coverage: 98.134252 %
+#atpg: cputime for test pattern generation ../sample_circuits/c7552.ckt: 142.7s 142.7s
