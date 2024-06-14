@@ -127,6 +127,10 @@ void ATPG::set_compression(const bool &b) {
   this->compress = b;
 }
 
+void ATPG::set_compression_dtc(const bool &b) {
+  this->compress_dtc = b;
+}
+
 void ATPG::set_total_attempt_num(const int &i) {
   this->total_attempt_num = i;
 }
