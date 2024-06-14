@@ -47,9 +47,19 @@ int main(int argc, char *argv[]) {
     }
       // for compression
     else if (strcmp(argv[i], "-compression") == 0) {
+      atpg.set_compression_dtc(true);
       atpg.set_compression(true);
       i += 1;
-    } else if (argv[i][0] == '-') {
+    }
+    
+    else if (strcmp(argv[i], "-compressionSTC") == 0) {
+      atpg.set_compression(true);
+      i += 1;
+    }
+    else if (strcmp(argv[i], "-compressionDTC") == 0) {
+      atpg.set_compression_dtc(true);
+      i += 1;
+    }else if (argv[i][0] == '-') {
       j = 1;
       while (argv[i][j] != '\0') {
         if (argv[i][j] == 'd') {
