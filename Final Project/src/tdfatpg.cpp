@@ -829,7 +829,7 @@ int ATPG::tdf2xpodem(const fptr fault, int &current_backtracks) {
   bool nieh_speaks = false;
   bool nieh_speaks_details = false;
   string vec;
-  int i, ncktwire, ncktin, r, y;
+  int i, ncktwire, ncktin, r, r1, y;
   forward_list<wptr> decision_tree; // design_tree (a LIFO stack)
   wptr wfault;
   int attempt_num = 0;  // counts the number of pattern generated so far for the given fault
@@ -1620,8 +1620,9 @@ if (nieh_speaks_details) {
     }
   }
   else {
-    tdf2xpodem_dtc(current_backtracks);
-    for (y = 0; y < total_attempt_num; y++) {
+    //tdf2xpodem_dtc(current_backtracks);
+    r1 = rand()*2;
+    for (y = 0; y < total_attempt_num/r1; y++) {
       r = rand()%total_no_compression_patterns.size();
       while (std::find(random_index.begin(), random_index.end(), r) != random_index.end()) { //index repeat
       // cout << random_index.size() << endl;
