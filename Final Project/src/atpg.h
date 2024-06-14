@@ -259,6 +259,7 @@ class ATPG {
                                   in the presence of 16 faults. (for pfedfs) */
     int wlist_index;           /* index into the sorted_wlist array */
     bool all_assigned;
+    forward_list<fptr> udflist; // for tdf2xpodem_dtc()
     //  the following functions control/observe the state of wire
     //  HCY 2020/2/6
     void set_(int type) { flag |= type; }
