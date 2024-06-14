@@ -1640,7 +1640,7 @@ if (nieh_speaks_details) {
   return (FALSE);
 }/* end of tdf2xpodem */
 
-void ATPG::tdf2xpodem_dtc()
+void ATPG::tdf2xpodem_dtc(int &current_backtracks)
 {
   int U_PO_idx = 0;
   int continuous_fail_count = 0;
@@ -1708,7 +1708,7 @@ void ATPG::tdf2xpodem_dtc()
       for (int i = 0; i < cktin.size(); ++i) sort_wlist[i]->set_changed();
       for (int i = cktin.size(); i < sort_wlist.size(); ++i) sort_wlist[i]->value = U;
       sim();
-      switch (tdf2xpodem_secondary(f_secondary))
+      switch (tdf2xpodem_secondary(f_secondary, current_backtracks))
       {
 	case TRUE:
 	  if (unknown_PO->value != U) PO_filled = true;
@@ -1725,7 +1725,7 @@ void ATPG::tdf2xpodem_dtc()
     }
   }
 }
-int ATPG::tdf2xpodem_secondary(const fptr fault) {
+int ATPG::tdf2xpodem_secondary(const fptr fault, int &current_backtracks) {
   return 0;
 }
 
