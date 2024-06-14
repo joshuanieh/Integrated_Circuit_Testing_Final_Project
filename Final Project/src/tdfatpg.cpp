@@ -1622,7 +1622,7 @@ if (nieh_speaks_details) {
   }
   else {
     //tdf2xpodem_dtc(current_backtracks);
-    r1 = 0.8+rand();
+    r1 = 0.5+rand();
     for (y = 0; y < total_attempt_num/r1; y++) {
       r = rand()%total_no_compression_patterns.size();
       while (std::find(random_index.begin(), random_index.end(), r) != random_index.end()) { //index repeat
