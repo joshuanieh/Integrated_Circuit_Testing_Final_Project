@@ -70,6 +70,7 @@ class ATPG {
   void set_tdfsim_only(const bool &);
   void set_tdfatpg_only(const bool &);
   void set_compression(const bool &);
+  void set_compression_dtc(const bool &);
   void read_vectors(const string &);
   void set_total_attempt_num(const int &);
   void set_backtrack_limit(const int &);
